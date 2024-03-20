@@ -1,11 +1,59 @@
-= BPM - Bali's package manager
+= BPM - Bali's package maintainer
 
-This project aims to be a simple alternative to WPKG and substitute application management functionality provided by kind of software like MDM's
+This project aims to be a simple alternative to WPKG and a replacement for software management provided by software like MDM's.
 
 == Why would i want this ?
 
-* The main script uses clear `Powershell` for it's operations and nothing else.
-* Events are recorded in `Event Log` under `Applications/BPM`. If something does not work for you, you can search for more informations here.
-* There is no need to have files stored on `SMB` share accessible by `Authenticated Users`, every configuration or installation file is downloaded from web server (HTTP/S).
+. The main script uses just `Powershell` for it's operations and nothing else.
+. Events are recorded in `Event Log` under `Applications/BPM`. If something does not work for you, you can search for more informations there.
+. It is made to be used on webserver so there is no need to have files stored on `SMB` share accessible by `Authenticated Users`. Every configuration is downloaded from your web server (HTTP/HTTPS). In installation command you can of course specify shared directory as a path to installer file/archive.
+. You can install ANY kind of software not only `.msi`. So if you have `.exe`, you can usually use argument `/S` for silent install or add `appx/.msix` application via `Add-AppxPackage`.
+. Package version and it's uninstall command is stored in Windows Registry. If you don't want application anymore to be installed and it's configuration profile does not exist anymore on your webserver, it doesn't matter because uninstall command is specified in the registry. As an advantage of this, different version can have different way to uninstall and in your registry is saved uninstall command for your installed version.
+. For a run, a simple powershell command is required. It can be configured via scheduled task or GPO startup script.
+. It's as simple and robust as can be (as far as possible).
+. It's got <150 lines of code :smile:
 
+== Why not ?
 
+. It does not have any GUI or configuration tool.
+. It does not have any access control. Configuration files can be visible by anyone in case you don't specify rules on your webserver (allow/deny <ip subnet>).
+. IDK let me know ..
+
+== How to install
+
+. Copy `bpm.ps1` and directory `config` to your webserver
+. Edit `config/default.ps1`
++
+NOTE: This file specifies a powershell array of package names. Those package names are filenames under config/packages directory.
+. Create `config/packages/<yourpackage>.ps1` from some example under `config/packages/examples`.
+.. Variable `$version` MUST be specified to define version of package
+.. `$download_uri` is optional. You can specify `URI` of package to download before install begins.
+.. `$install_cmd` defines the command to install package. It is good to remove installer files when installation is complete. 
+.. `$uninstall_cmd` defines command for uninstallation. This is saved in registry for according version in installation process.
+. That's it. 
+
+[#howtorun]
+== How to run
+
+. Specify name of the configuration and run script from remote webserver via command:
+[source, powershell]
+$config = "default" ; Invoke-Expression (Invoke-RestMethod -Uri https://<your-webserver>/bpm/bpm.ps1)
+
++
+NOTE: <your-webserver> should be domain name or address of your webserver where configuration files are stored. It does not matter where installation or download files are stored but configuration files must be stored along bpm.ps1.
+
+== Log
+
+* `bpm.ps1` does output terminal messages with the same information as `Event Log`. So for debugging purposes, you can call script manually and get messages directly in the terminal.
+* In `Event Log`, messages have so called "EventID". This "EventID" corresponds to event category/type.
+* Event types (EventID):
+** 1 => Script has started or finished
+** 10 => Configuration has been loaded.
+** 11 => Package configuration has been loaded.
+** 30 => Package already installed, "doing nothing"
+** 31 => Installing package
+** 32 => Uninstalling package because it is no longer specified in `$config`
+** 80 => Configuration was not specified ! You need to specify configuration to use with `$config` variable. Check xref:#howtorun[How to run] above.
+** 81 => Failed to download configuration file. This file is specified with `$config` variable. 
+** 82 => Failed to load package configuration file. This file name is specified in `$config` file and it's located in `config/packages/<package>.ps1`
+** 83 => Failed to download installation file from `$download_uri`
