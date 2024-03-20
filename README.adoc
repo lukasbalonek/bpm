@@ -1,0 +1,11 @@
+= BPM - Bali's package manager
+
+This project aims to be a simple alternative to WPKG and substitute application management functionality provided by kind of software like MDM's
+
+== Why would i want this ?
+
+* The main script uses clear `Powershell` for it's operations and nothing else.
+* Events are recorded in `Event Log` under `Applications/BPM`. If something does not work for you, you can search for more informations here.
+* There is no need to have files stored on `SMB` share accessible by `Authenticated Users`, every configuration or installation file is downloaded from web server (HTTP/S).
+
+
