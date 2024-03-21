@@ -6,7 +6,7 @@ $download_uri = "http://<some repository webserver>/<somefile>.msi"
 
 # Command that will install package and remove installer after
 $install_cmd = "`
-Start-Process -Wait .\<somefile>.msi -ArgumentList `"$msiexec_args`" ;;
+Start-Process -Wait .\<somefile>.msi -ArgumentList `"$msiexec_args`" ;
 Remove-Item -ErrorAction SilentlyContinue -Force <somefile>.msi ;
 "
 
