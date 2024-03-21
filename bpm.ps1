@@ -1,5 +1,5 @@
 # this thing name
-$myname = "BWP"
+$myname = "BPM"
 
 # webserver root, this must be the root directory where this script is located
 $webroot = "http://balonluk.fit.cvut.cz"
@@ -7,7 +7,8 @@ $webroot = "http://balonluk.fit.cvut.cz"
 # default msiexec arguments
 $msiexec_args = "/qn /norestart"
 
-# functions used in script
+### functions used in script ###
+
 function download_package {
   if (Get-Variable download_uri -ErrorAction SilentlyContinue)
   {
@@ -17,7 +18,13 @@ function download_package {
       Write-Host "$err" -ForegroundColor Red
       Write-EventLog -EventId 83 -Logname "Application" -Message "$err" -Source "$myname" -EntryType Error
       Remove-Variable download_uri -ErrorAction SilentlyContinue
+      $global:eventid = "83"
+    } else {
+      $global:eventid = "84"
     }
+  } else {
+    # Set eventid like if download was successfull
+    eventid = "84"
   }  
 }
 
@@ -29,13 +36,19 @@ function install_package {
   # download package if download_uri is defined
   download_package
 
-  # do the install
-  Invoke-Expression $install_cmd
+  # if download was successfull
+  if ($eventid -eq 84){
+
+    # do the install
+    Invoke-Expression $install_cmd
   
-  # register package in registry
-  New-Item "REGISTRY::HKLM\SOFTWARE\$myname\$package" -Force *>$null
-  New-ItemProperty "REGISTRY::HKLM\SOFTWARE\$myname\$package" -Name Version -PropertyType Qword -Value $version -Force *>$null
-  New-ItemProperty "REGISTRY::HKLM\SOFTWARE\$myname\$package" -Name Uninstall_CMD -PropertyType String -Value $uninstall_cmd -Force *>$null  
+    # register package in registry
+    New-Item "REGISTRY::HKLM\SOFTWARE\$myname\$package" -Force *>$null
+    New-ItemProperty "REGISTRY::HKLM\SOFTWARE\$myname\$package" -Name Version -PropertyType Qword -Value $version -Force *>$null
+    New-ItemProperty "REGISTRY::HKLM\SOFTWARE\$myname\$package" -Name Uninstall_CMD -PropertyType String -Value $uninstall_cmd -Force *>$null  
+
+  }
+
 }
 
 ### START ###
