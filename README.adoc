@@ -11,7 +11,8 @@ This project aims to be a simple alternative to WPKG and a replacement for softw
 . Package version and it's uninstall command is stored in Windows Registry. If you don't want application anymore to be installed and it's configuration profile does not exist anymore on your webserver, it doesn't matter because uninstall command is specified in the registry. As an advantage of this, different version can have different way to uninstall and in your registry is saved uninstall command for your installed version.
 . For a run, a simple powershell command is required. It can be configured via scheduled task or GPO startup script.
 . It's as simple and robust as can be (as far as possible).
-. It's got <150 lines of code :smile:
+. Debugging isn't the same pain as resolving what `0x8004056` mean after generating gpresult. If you need to debug installation problem, you can run Powershell as Administrator and try `$install_cmd` there.
+. It's got <200 lines of code :smile:
 
 == Why not ?
 
@@ -47,13 +48,14 @@ NOTE: <your-webserver> should be domain name or address of your webserver where 
 * `bpm.ps1` does output terminal messages with the same information as `Event Log`. So for debugging purposes, you can call script manually and get messages directly in the terminal.
 * In `Event Log`, messages have so called "EventID". This "EventID" corresponds to event category/type.
 * Event types (EventID):
-** 1 => Script has started or finished
+** 1 => Script has started or finished.
 ** 10 => Configuration has been loaded.
 ** 11 => Package configuration has been loaded.
-** 30 => Package already installed, "doing nothing"
-** 31 => Installing package
-** 32 => Uninstalling package because it is no longer specified in `$config`
+** 30 => Package already installed, "doing nothing".
+** 31 => Installing package.
+** 32 => Uninstalling package because it is no longer specified in `$config`.
 ** 80 => Configuration was not specified ! You need to specify configuration to use with `$config` variable. Check xref:#howtorun[How to run] above.
 ** 81 => Failed to download configuration file. This file is specified with `$config` variable. 
-** 82 => Failed to load package configuration file. This file name is specified in `$config` file and it's located in `config/packages/<package>.ps1`
-** 83 => Failed to download installation file from `$download_uri`
+** 82 => Failed to load package configuration file. This file name is specified in `$config` file and it's located in `config/packages/<package>.ps1`.
+** 83 => Failed to download installation file from `$download_uri`.
+** 84 => `$download_uri` file has been downloaded successfully.
