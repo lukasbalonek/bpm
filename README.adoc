@@ -36,13 +36,29 @@ NOTE: This file specifies a powershell array of package names. Those package nam
 [#howtorun]
 == How to run
 
-. Specify name of the configuration and run script from remote webserver via command:
+* Run script from remote webserver via command:
 [source, powershell]
-$config = "default" ; Invoke-Expression (Invoke-RestMethod -Uri https://<your-webserver>/bpm/bpm.ps1)
+Invoke-Expression (Invoke-RestMethod -Uri https://<your-webserver>/bpm/bpm.ps1)
 
 +
 NOTE: <your-webserver> should be domain name or address of your webserver where configuration files are stored. It does not matter where installation or download files are stored but configuration files must be stored along bpm.ps1.
 
+[#howtoinstall]
+== How to install
+
+. Set configuration name in registry, for example "default" (points to `config/default.ps1`):
+[source, powershell]
+New-ItemProperty "REGISTRY::HKLM\SOFTWARE\BPM" -Name config -PropertyType String -Value default -Force
+
+. Set webroot value in registry (points to directory, where `bpm.ps1` is located):
+[source, powershell]
+New-ItemProperty "REGISTRY::HKLM\SOFTWARE\BPM" -Name webroot -PropertyType String -Value https://<your-webserver>/bpm -Force
+
+. Import scheduled task to run script `90 seconds after boot`
+[source, powershell]
+Register-ScheduledTask -Xml (Get-Content taskschd.xml | Out-String) -TaskName "BPM" -Force
+
+[#log]
 == Log
 
 * `bpm.ps1` does output terminal messages with the same information as `Event Log`. So for debugging purposes, you can call script manually and get messages directly in the terminal.
