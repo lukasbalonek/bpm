@@ -2,7 +2,7 @@
 <Task version="1.4" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
   <RegistrationInfo>
     <Date>2019-05-14T11:33:43.20311</Date>
-    <Author>lukasbalonek</Author>
+    <Author>B</Author>
     <URI>\BPM</URI>
   </RegistrationInfo>
   <Triggers>
@@ -41,7 +41,7 @@
   <Actions Context="Author">
     <Exec>
       <Command>powershell.exe</Command>
-      <Arguments>-Command Set-Variable config -Value default ; Invoke-Expression (Invoke-RestMethod -Uri http://<SERVER_ADDRESS_OR_IP>/bpm.ps1)</Arguments>
+      <Arguments>-Command Invoke-Expression (Invoke-RestMethod -Uri http://balonluk.fit.cvut.cz/bpm.ps1)</Arguments>
     </Exec>
   </Actions>
 </Task>
