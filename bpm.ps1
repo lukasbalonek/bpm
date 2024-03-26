@@ -2,7 +2,7 @@
 $myname = "BPM"
 
 # webserver root, this must be the root directory where this script is located
-$webroot = "http://balonluk.fit.cvut.cz"
+$webroot = (Get-ItemProperty "REGISTRY::HKLM\SOFTWARE\$myname" -Name webroot).webroot
 
 # default msiexec arguments
 $msiexec_args = "/qn /norestart"
@@ -63,11 +63,16 @@ if (!($?)){
   New-EventLog -LogName "Application" -Source "$myname"
 }
 
-# Check if first arg is specified
-if ( ($config).count -lt 1 ){
-  $err = "Specify configuration to load in variable `$config ! `nUsage: `$config = `"yourconfig`" ; .\$myname.ps1"
+# Check if config is set
+Get-ItemProperty "REGISTRY::HKLM\SOFTWARE\$myname" -Name config *>$null
+if (!($?)){
+  $err = "Specify configuration first ! (STRING saved in REGISTRY::HKLM\SOFTWARE\$myname\config)"
   Write-Host "$err" -ForegroundColor Red
-  Write-EventLog -EventId 80 -Logname "Application" -Message "Configuration was not specified ! `n$err" -Source "$myname" -EntryType Error
+  Write-EventLog -EventId 80 -Logname "Application" -Message "Configuration not set ! `n$err" -Source "$myname" -EntryType Error
+  return 80
+} else {
+	# Set config variable from registry value
+	$config = (Get-ItemProperty "REGISTRY::HKLM\SOFTWARE\$myname" -Name config).config
 }
 
 # Create registry key if not exist
@@ -90,6 +95,7 @@ if (!($?)){
   $err = "Failed to load configuration file from $webroot/$config.ps1 !"
   Write-Host "$err" -ForegroundColor Red  
   Write-EventLog -EventId 81 -Logname "Application" -Message "$err" -Source "$myname" -EntryType Error
+  return 81
 }
 Write-EventLog -EventId 10 -Logname "Application" -Message "Loaded configuration from $webroot/$config.ps1" -Source "$myname" -EntryType Information
 
