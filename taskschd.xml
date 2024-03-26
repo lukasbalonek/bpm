@@ -41,7 +41,7 @@
   <Actions Context="Author">
     <Exec>
       <Command>powershell.exe</Command>
-      <Arguments>-Command Invoke-Expression (Invoke-RestMethod -Uri http://balonluk.fit.cvut.cz/bpm.ps1)</Arguments>
+      <Arguments>-Command Set-Variable -Name webroot -Value (Get-ItemProperty "REGISTRY::HKLM\SOFTWARE\BPM" -Name webroot).webroot ; Invoke-Expression (Invoke-RestMethod -Uri $webroot/bpm.ps1)</Arguments>
     </Exec>
   </Actions>
 </Task>
