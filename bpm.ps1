@@ -75,13 +75,6 @@ if (!($?)){
 	$config = (Get-ItemProperty "REGISTRY::HKLM\SOFTWARE\$myname" -Name config).config
 }
 
-# Create registry key if not exist
-Get-Item "REGISTRY::HKLM\SOFTWARE\$myname" -ErrorAction SilentlyContinue *>$null
-if (!($?)){
-  Write-Host "Creating registry key REGISTRY::HKLM\SOFTWARE\$myname" -ForegroundColor Yellow
-  New-Item "REGISTRY::HKLM\SOFTWARE\$myname" -Force *>$null
-}
-
 # Go to TEMPorary directory while operating
 New-Item -ItemType Directory -Force $env:TEMP\$myname *>$null
 Set-Location $env:TEMP\$myname

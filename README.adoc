@@ -46,6 +46,10 @@ NOTE: <your-webserver> should be domain name or address of your webserver where 
 [#howtoinstall]
 == How to install
 
+. Create registry key
+[source, powershell]
+New-Item "REGISTRY::HKLM\SOFTWARE\BPM" -Force
+
 . Set configuration name in registry, for example "default" (points to `config/default.ps1`):
 [source, powershell]
 New-ItemProperty "REGISTRY::HKLM\SOFTWARE\BPM" -Name config -PropertyType String -Value default -Force
