@@ -20,7 +20,7 @@ This project aims to be a simple alternative to WPKG and a replacement for softw
 . It does not have any access control. Configuration files can be visible by anyone in case you don't specify rules on your webserver (allow/deny <ip subnet>).
 . IDK let me know ..
 
-== How to install
+== How to setup deployment webserver
 
 . Copy `bpm.ps1` and directory `config` to your webserver
 . Edit `config/default.ps1`
@@ -32,16 +32,6 @@ NOTE: This file specifies a powershell array of package names. Those package nam
 .. `$install_cmd` defines the command to install package. It is good to remove installer files when installation is complete. 
 .. `$uninstall_cmd` defines command for uninstallation. This is saved in registry for according version in installation process.
 . That's it. 
-
-[#howtorun]
-== How to run
-
-* Run script from remote webserver via command:
-[source, powershell]
-Invoke-Expression (Invoke-RestMethod -Uri https://<your-webserver>/bpm/bpm.ps1)
-
-+
-NOTE: <your-webserver> should be domain name or address of your webserver where configuration files are stored. It does not matter where installation or download files are stored but configuration files must be stored along bpm.ps1.
 
 [#howtoinstall]
 == How to install
@@ -61,6 +51,17 @@ New-ItemProperty "REGISTRY::HKLM\SOFTWARE\BPM" -Name webroot -PropertyType Strin
 . Import scheduled task to run script `90 seconds after boot`
 [source, powershell]
 Register-ScheduledTask -Xml (Get-Content taskschd.xml | Out-String) -TaskName "BPM" -Force
+
+[#howtorun]
+== How to run
+
+* Run script from remote webserver via command:
+[source, powershell]
+Set-Variable -Name webroot -Value (Get-ItemProperty "REGISTRY::HKLM\SOFTWARE\BPM" -Name webroot).webroot
+Invoke-Expression (Invoke-RestMethod -Uri $webroot/bpm.ps1)
+
++
+NOTE: <your-webserver> should be domain name or address of your webserver where configuration files are stored. It does not matter where installation or download files are stored but configuration files must be stored along bpm.ps1.
 
 [#log]
 == Log
